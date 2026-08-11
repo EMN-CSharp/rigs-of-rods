@@ -121,6 +121,7 @@ void Console::cVarSetupBuiltins()
     App::sys_savegames_dir       = this->cVarCreate("sys_savegames_dir",       "",                           0);
     App::sys_screenshot_dir      = this->cVarCreate("sys_screenshot_dir",      "",                           0);
     App::sys_scripts_dir         = this->cVarCreate("sys_scripts_dir",         "",                           0);
+    App::sys_server_scripts_dir  = this->cVarCreate("sys_server_scripts_dir",  "",                           0);
     App::sys_projects_dir        = this->cVarCreate("sys_projects_dir",        "",                           0);
     App::sys_repo_attachments_dir= this->cVarCreate("sys_repo_attachments_dir","",                           0);
 
@@ -226,6 +227,7 @@ void Console::cVarSetupBuiltins()
     App::ui_default_boat_dash              = this->cVarCreate("ui_default_boat_dash",              "", CVAR_ARCHIVE, "default_boat.dashboard");
     App::ui_always_show_fullsize           = this->cVarCreate("ui_always_show_fullsize",           "", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "false");
     App::ui_dashboard_cinecam              = this->cVarCreate("ui_dashboard_cinecam", "Hide dashboard in cinecam view", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "true");
+    App::ui_keep_search                    = this->cVarCreate("ui_keep_search",       "Retain selector search text",    CVAR_ARCHIVE | CVAR_TYPE_BOOL, "false");
 }
 
 CVar* Console::cVarCreate(std::string const& name, std::string const& long_name,

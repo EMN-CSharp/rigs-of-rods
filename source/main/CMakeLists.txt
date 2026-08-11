@@ -277,6 +277,14 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/common/EngineAngelscriptCommon.cpp
             scripting/bindings/common/GameScriptAngelscriptCommon.cpp
             scripting/bindings/common/VehicleAiAngelscriptCommon.cpp
+            
+            scripting/server/ServerScript.{h,cpp}
+            scripting/server/ServerScriptConfig.h
+            scripting/server/ServerScriptCurlHelpers.{h,cpp}
+            scripting/server/ServerScriptEngine.{h,cpp}
+            scripting/server/ServerScriptFileSafe.{h,cpp}
+            scripting/server/ServerScriptLogger.{h,cpp}
+            scripting/server/ServerScriptSequencer.{h,cpp}
             )
 endif ()
 
@@ -386,6 +394,7 @@ target_include_directories(${BINNAME} PRIVATE
         system
         scripting
         scripting/bindings
+        scripting/server
         terrain
         terrain/map
         threadpool
