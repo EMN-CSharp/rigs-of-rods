@@ -95,7 +95,8 @@ public:
     float             getInitialDryMass() { return ar_original_dry_mass; }
     float             getInitialLoadedMass() { return ar_original_load_mass; }
     int               getNodeCount() { return ar_num_nodes; }
-    Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
+    Ogre::Vector3     getOrigin() { return ar_origin; }
+    Ogre::Vector3     getNodePosition(int nodeNumber, bool relative = false);     //!< Returns world position of node
     float             getNodeInitialMass(int nodeNumber);
     float             getNodeMass(int nodeNumber);
     Ogre::Vector3     getNodeVelocity(int nodeNumber);
@@ -117,9 +118,7 @@ public:
     void              resetPosition(Ogre::Vector3 translation, bool setInitPosition); //!< Moves the actor to given world coords (pivot point is node 0).
     void              resetPosition(float px, float pz, bool setInitPosition, float miny); //!< Moves the actor to given world coords (pivot point is node 0).
     void              softRespawn(Ogre::Vector3 spawnpos, Ogre::Quaternion spawnrot); //!< Use `MSG_SIM_MODIFY_ACTOR_REQUESTED` with type `SOFT_RESPAWN`; Resets the actor to given position as if spawned there (pivot point is `spawnpos`).
-    void              requestRotation(float rotation, Ogre::Vector3 center) { m_rotation_request += rotation; m_rotation_request_center = center; };
     void              requestAngleSnap(int division) { m_anglesnap_request = division; };
-    void              requestTranslation(Ogre::Vector3 translation) { m_translation_request += translation; };
     int               getShockCount() { return ar_num_shocks; }
     Ogre::Vector3     getVelocity() const { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
     Ogre::Vector3     getDirection();
@@ -134,6 +133,7 @@ public:
     void              updateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces
     void              resetSlideNodePositions();           //!< Recalculate SlideNode positions
     void              resetSlideNodes();                   //!< Reset all the SlideNodes
+    bool              isSleeping() { return ar_state == ActorState::LOCAL_SLEEPING || ar_state == ActorState::LOCAL_SLEEPWALKING; };
     /// @}
 
     /// @name Physics editing
@@ -144,6 +144,10 @@ public:
     void              setLoadedMass(float m);
     void              setNodeMass(int nodeNumber, float m);
     void              setNodeMassOptions(int nodeNumber, bool loaded, bool overrideMass);
+    void              requestTranslation(Ogre::Vector3 translation) { m_translation_request += translation; };
+    void              requestRotation(float rotation, Ogre::Vector3 center);
+    void              requestRotation(Ogre::Quaternion rotTransform, Ogre::Vector3 centre, bool relativeCentre = false);
+    void              setNodeVelocity(int nodeNumber, Ogre::Vector3 velocity);
     void              setSimAttribute(ActorSimAttr attr, float val); //!< HAZARDOUS - values may not be checked; Pay attention to 'safe values' at each attribute description.
     void              setIndexedSimAttribute(ActorSimAttr attr, float val, int index); //!< - Sets a sim attribute for a particular object (e.g. aircraft engine) at the specified index.
     float             getSimAttribute(ActorSimAttr attr);
@@ -152,7 +156,7 @@ public:
     void              setAirbrakeIntensity(float intensity);
     void              setAircraftFlaps(int flapsLevel);
     void              wakeUp();
-    void              sendToSleep();
+    void              sendToSleep(bool sleepwalk);
     // not exported to scripting:
     void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
     void              searchBeamDefaults();                //!< Searches for more stable beam defaults
@@ -318,7 +322,7 @@ public:
     //! @}
 
     void              ForceFeedbackStep(int steps);
-    void              HandleInputEvents(float dt);
+    void              HandleTransformRequests();
     void              HandleAngelScriptEvents(float dt);
     void              UpdateCruiseControl(float dt);       //!< Defined in 'gameplay/CruiseControl.cpp'
     bool              Intersects(ActorPtr actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
@@ -572,7 +576,8 @@ public:
 
     // Repair state
     Ogre::Vector3     m_rotation_request_center = Ogre::Vector3::ZERO;
-    float             m_rotation_request = 0.f;         //!< Accumulator
+    bool              m_rotation_request_center_relative = false;
+    Ogre::Quaternion   m_rotation_request = Ogre::Quaternion::IDENTITY;  //!< Accumulator
     int               m_anglesnap_request = 0;        //!< Accumulator
     Ogre::Vector3     m_translation_request = Ogre::Vector3::ZERO;      //!< Accumulator
 

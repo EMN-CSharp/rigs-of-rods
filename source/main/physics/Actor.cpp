@@ -1946,35 +1946,35 @@ void Actor::searchBeamDefaults()
     ar_nb_initialized = true;
 }
 
-void Actor::HandleInputEvents(float dt)
+void Actor::HandleTransformRequests()
 {
-    if (!m_ongoing_reset)
-        return;
-
     if (m_anglesnap_request > 0)
     {
         float rotation = Radian(getRotation()).valueDegrees();
         float target_rotation = std::round(rotation / m_anglesnap_request) * m_anglesnap_request;
-        m_rotation_request = -Degree(target_rotation - rotation).valueRadians();
-	m_rotation_request_center = getRotationCenter();
+        rotation = -Degree(target_rotation - rotation).valueRadians();
+        m_rotation_request = Quaternion(Radian(rotation), Vector3::UNIT_Y);
+	    m_rotation_request_center = getRotationCenter();
+        m_rotation_request_center_relative = false;
         m_anglesnap_request = 0;
     }
 
-    if (m_rotation_request != 0.0f)
+    if (m_rotation_request != Quaternion::IDENTITY)
     {
-        Quaternion rot = Quaternion(Radian(m_rotation_request), Vector3::UNIT_Y);
-
+        // If the rotation centre is absolute, move it to actor-relative space.
+        if (!m_rotation_request_center_relative)
+            m_rotation_request_center -= ar_origin;
         for (int i = 0; i < ar_num_nodes; i++)
         {
-            ar_nodes[i].AbsPosition -= m_rotation_request_center;
-            ar_nodes[i].AbsPosition = rot * ar_nodes[i].AbsPosition;
-            ar_nodes[i].AbsPosition += m_rotation_request_center;
-            ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
-            ar_nodes[i].Velocity = rot * ar_nodes[i].Velocity;
-            ar_nodes[i].Forces = rot * ar_nodes[i].Forces;
+            ar_nodes[i].RelPosition -= m_rotation_request_center;
+            ar_nodes[i].RelPosition = m_rotation_request * ar_nodes[i].RelPosition;
+            ar_nodes[i].RelPosition += m_rotation_request_center;
+            ar_nodes[i].AbsPosition = ar_nodes[i].RelPosition + ar_origin;
+            ar_nodes[i].Velocity = m_rotation_request * ar_nodes[i].Velocity;
+            ar_nodes[i].Forces = m_rotation_request * ar_nodes[i].Forces;
         }
 
-        m_rotation_request = 0.0f;
+        m_rotation_request = Quaternion::IDENTITY;
         this->UpdateBoundingBoxes();
         calculateAveragePosition();
     }
@@ -2997,18 +2997,18 @@ void Actor::setAircraftFlaps(int flapsLevel)
 
 void Actor::wakeUp()
 {
-    if (ar_state == ActorState::LOCAL_SLEEPING)
+    if (this->isSleeping())
     {
         ar_state = ActorState::LOCAL_SIMULATED;
         ar_sleep_counter = 0.0f;
     }
 }
 
-void Actor::sendToSleep()
+void Actor::sendToSleep(bool sleepwalk)
 {
-    if (ar_state == ActorState::LOCAL_SIMULATED)
+    if (ar_state == ActorState::LOCAL_SIMULATED || ar_state == ActorState::LOCAL_SLEEPING)
     {
-        ar_state = ActorState::LOCAL_SLEEPING;
+        ar_state = sleepwalk ? ActorState::LOCAL_SLEEPWALKING : ActorState::LOCAL_SLEEPING;
     }
 }
 
@@ -3072,12 +3072,7 @@ float Actor::getEventSimulatedValue(int eventID)
 
 void Actor::setEventSimulatedValue(int eventID, float value)
 {
-    // Wake up if sleeping.
-    if (ar_state == ActorState::LOCAL_SLEEPING)
-    {
-        ar_state = ActorState::LOCAL_SIMULATED;
-        ar_sleep_counter = 0.0f;
-    }
+    wakeUp();
 
     // Double check this actor can be controlled.
     if (ar_state == ActorState::LOCAL_SIMULATED)
@@ -4685,6 +4680,27 @@ void Actor::setNodeMassOptions(int nodeNumber, bool loaded, bool overrideMass)
     }
 }
 
+void Actor::requestRotation(float rotation, Ogre::Vector3 center)
+{
+    Quaternion rot = Quaternion(Radian(rotation), Vector3::UNIT_Y);
+    this->requestRotation(rot, center, false);
+}
+
+void Actor::requestRotation(Ogre::Quaternion rotTransform, Ogre::Vector3 centre, bool relativeCentre)
+{
+    m_rotation_request = rotTransform * m_rotation_request;
+    m_rotation_request_center = centre;
+    m_rotation_request_center_relative = relativeCentre;
+}
+
+void Actor::setNodeVelocity(int nodeNumber, Ogre::Vector3 velocity)
+{
+    if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
+    {
+        ar_nodes[nodeNumber].Velocity = velocity;
+    }
+}
+
 bool Actor::getCustomLightVisible(int number)
 {
     if (number < 0 || number >= MAX_CLIGHTS)
@@ -4836,11 +4852,11 @@ std::vector<std::string> Actor::getManagedMaterialNames()
     return names;
 }
 
-Vector3 Actor::getNodePosition(int nodeNumber)
+Vector3 Actor::getNodePosition(int nodeNumber, bool relative)
 {
     if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
     {
-        return ar_nodes[nodeNumber].AbsPosition;
+        return relative ? ar_nodes[nodeNumber].RelPosition : ar_nodes[nodeNumber].AbsPosition;
     }
     else
     {

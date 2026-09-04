@@ -338,6 +338,20 @@ int main(int argc, char *argv[])
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {
                 App::GetGameContext()->GetActorManager()->SyncWithSimThread();
+                for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
+                {
+                    // Now that the physics thread is stopped, we can now handle
+                    // transform requests.
+                    // We must do this here for two reasons:
+                    // - Scripts can also request translations and rotations,
+                    //   and the camera must be aware of those changes to prevent
+                    //   it from falling 1 frame behind and causing stuttering.
+                    //   The camera will be updated in the input processing step.
+                    // - If the actor is being moved in repair mode, any transform
+                    //   that puts some part of the actor under the ground will be
+                    //   corrected afterwards.
+                    actor->HandleTransformRequests();
+                }
             }
 
             // Game events

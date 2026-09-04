@@ -747,7 +747,7 @@ void ActorManager::RecursiveActivation(int j, std::vector<bool>& visited)
             m_actors[t]->ar_sleep_counter = 0.0f;
             this->RecursiveActivation(t, visited);
         }
-        if (m_actors[t]->ar_state == ActorState::LOCAL_SLEEPING && PredictActorCollAabbIntersect(t, j))
+        if (m_actors[t]->isSleeping() && PredictActorCollAabbIntersect(t, j))
         {
             m_actors[t]->ar_sleep_counter = 0.0f;
             m_actors[t]->ar_state = ActorState::LOCAL_SIMULATED;
@@ -769,11 +769,7 @@ void ActorManager::ForwardCommands(ActorPtr source_actor)
                      actor->m_min_camera_radius + source_actor->m_min_camera_radius))
             {
                 // activate the truck
-                if (actor->ar_state == ActorState::LOCAL_SLEEPING)
-                {
-                    actor->ar_sleep_counter = 0.0f;
-                    actor->ar_state = ActorState::LOCAL_SIMULATED;
-                }
+                actor->wakeUp();
 
                 if (App::sim_realistic_commands->getBool())
                 {
@@ -866,6 +862,8 @@ void ActorManager::UpdateSleepingState(ActorPtr player_actor, float dt)
         }
     }
 
+    // We won't activate sleepwalking player actors as they aren't meant
+    // to, unless they crash into something.
     if (player_actor && player_actor->ar_state == ActorState::LOCAL_SLEEPING)
     {
         player_actor->ar_state = ActorState::LOCAL_SIMULATED;
@@ -890,11 +888,7 @@ void ActorManager::WakeUpAllActors()
 {
     for (ActorPtr& actor: m_actors)
     {
-        if (actor->ar_state == ActorState::LOCAL_SLEEPING)
-        {
-            actor->ar_state = ActorState::LOCAL_SIMULATED;
-            actor->ar_sleep_counter = 0.0f;
-        }
+        actor->wakeUp();
     }
 }
 
@@ -903,10 +897,7 @@ void ActorManager::SendAllActorsSleeping()
     m_forced_awake = false;
     for (ActorPtr& actor: m_actors)
     {
-        if (actor->ar_state == ActorState::LOCAL_SIMULATED)
-        {
-            actor->ar_state = ActorState::LOCAL_SLEEPING;
-        }
+        actor->sendToSleep(false);
     }
 }
 
@@ -1142,7 +1133,6 @@ void ActorManager::UpdateActors(ActorPtr player_actor)
 
     for (ActorPtr& actor: m_actors)
     {
-        actor->HandleInputEvents(dt);
         actor->HandleAngelScriptEvents(dt);
 
 #ifdef USE_ANGELSCRIPT
@@ -1321,6 +1311,13 @@ void ActorManager::UpdatePhysicsSimulation()
             actor->m_avg_node_velocity /= (m_physics_steps * PHYSICS_DT);
             actor->m_avg_node_position_prev = actor->m_avg_node_position;
             actor->ar_top_speed = std::max(actor->ar_top_speed, actor->ar_nodes[0].Velocity.length());
+        }
+        else if (actor->ar_state == ActorState::LOCAL_SLEEPWALKING)
+        {
+            // We need to calculate the actor average position in this state for
+            // the vehicle cameras to keep moving.
+            actor->calculateAveragePosition();
+            actor->m_avg_node_position_prev = actor->m_avg_node_position;
         }
     }
 }

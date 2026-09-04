@@ -241,6 +241,7 @@ enum class ActorState
     NETWORKED_OK,     //!< not simulated (remote) actor
     NETWORKED_HIDDEN, //!< not simulated, not updated (remote)
     LOCAL_REPLAY,
+    LOCAL_SLEEPWALKING, //!< Sleepwalking local actor (physics aren't running, visuals are updated)
     LOCAL_SLEEPING,   //!< sleeping (local) actor
     DISPOSED          //!< removed from simulation, still in memory to satisfy pointers.
 };

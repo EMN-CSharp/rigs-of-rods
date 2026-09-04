@@ -406,11 +406,9 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
     {
         m_actor_manager.RestoreSavedState(actor, *rq.amr_saved_state.get());
     }
-    else if (rq.amr_type == ActorModifyRequest::Type::WAKE_UP &&
-        actor->ar_state == ActorState::LOCAL_SLEEPING)
+    else if (rq.amr_type == ActorModifyRequest::Type::WAKE_UP)
     {
-        actor->ar_state = ActorState::LOCAL_SIMULATED;
-        actor->ar_sleep_counter = 0.0f;
+        actor->wakeUp();
     }
     else if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
     {
