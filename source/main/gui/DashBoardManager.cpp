@@ -857,22 +857,20 @@ void DashBoard::update(float dt)
                 float scale = (val - animation.vmin) * (animation.wmax - animation.wmin) / (animation.vmax - animation.vmin) + animation.wmin;
                 if (animation.direction == DIRECTION_UP)
                 {
-                    controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top - scale);
+                    finalVerticalTranslation -= scale;
                     controls[i].widget->setSize(controls[i].initialSize.width, controls[i].initialSize.height + scale);
                 }
                 else if (animation.direction == DIRECTION_DOWN)
                 {
-                    controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top);
                     controls[i].widget->setSize(controls[i].initialSize.width, controls[i].initialSize.height + scale);
                 }
                 else if (animation.direction == DIRECTION_LEFT)
                 {
-                    controls[i].widget->setPosition(controls[i].initialPosition.left - scale, controls[i].initialPosition.top);
+                    finalHorizontalTranslation -= scale;
                     controls[i].widget->setSize(controls[i].initialSize.width + scale, controls[i].initialSize.height);
                 }
                 else if (animation.direction == DIRECTION_RIGHT)
                 {
-                    controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top);
                     controls[i].widget->setSize(controls[i].initialSize.width + scale, controls[i].initialSize.height);
                 }
             }
