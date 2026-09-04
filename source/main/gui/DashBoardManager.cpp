@@ -73,6 +73,7 @@ DashBoardManager::DashBoardManager(ActorPtr actor) : visible(true), m_actor(acto
     INITDATA(DD_TRACTIONCONTROL_MODE    , DC_INT  , "tractioncontrol_mode");
     INITDATA(DD_ANTILOCKBRAKE_MODE      , DC_INT  , "antilockbrake_mode");
     INITDATA(DD_TIES_MODE               , DC_INT  , "ties_mode");
+    INITDATA(DD_CRUISECONTROL_ACTIVE    , DC_BOOL , "cruisecontrol_active");
     INITDATA(DD_SCREW_THROTTLE_0        , DC_FLOAT, "screw_throttle_0");
     INITDATA(DD_SCREW_THROTTLE_1        , DC_FLOAT, "screw_throttle_1");
     INITDATA(DD_SCREW_THROTTLE_2        , DC_FLOAT, "screw_throttle_2");
