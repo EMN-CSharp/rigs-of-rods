@@ -179,7 +179,6 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "void requestTranslation(vector3)", asMETHOD(Actor, requestTranslation), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "void requestRotation(float, vector3)", asMETHODPR(Actor, requestRotation, (float, Ogre::Vector3), void), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "void requestRotation(quaternion, vector3, bool = false)", asMETHODPR(Actor, requestRotation, (Ogre::Quaternion, Ogre::Vector3, bool), void), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("BeamClass", "void setNodeVelocity(int, vector3)", asMETHOD(Actor, setNodeVelocity), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "void setSimAttribute(ActorSimAttr, float)", asMETHOD(Actor, setSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "void setIndexedSimAttribute(ActorSimAttr, float, int)", asMETHOD(Actor, setIndexedSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "float getSimAttribute(ActorSimAttr)", asMETHOD(Actor, getSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);

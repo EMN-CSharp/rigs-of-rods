@@ -4693,14 +4693,6 @@ void Actor::requestRotation(Ogre::Quaternion rotTransform, Ogre::Vector3 centre,
     m_rotation_request_center_relative = relativeCentre;
 }
 
-void Actor::setNodeVelocity(int nodeNumber, Ogre::Vector3 velocity)
-{
-    if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
-    {
-        ar_nodes[nodeNumber].Velocity = velocity;
-    }
-}
-
 bool Actor::getCustomLightVisible(int number)
 {
     if (number < 0 || number >= MAX_CLIGHTS)

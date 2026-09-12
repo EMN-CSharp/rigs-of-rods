@@ -147,7 +147,6 @@ public:
     void              requestTranslation(Ogre::Vector3 translation) { m_translation_request += translation; };
     void              requestRotation(float rotation, Ogre::Vector3 center);
     void              requestRotation(Ogre::Quaternion rotTransform, Ogre::Vector3 centre, bool relativeCentre = false);
-    void              setNodeVelocity(int nodeNumber, Ogre::Vector3 velocity);
     void              setSimAttribute(ActorSimAttr attr, float val); //!< HAZARDOUS - values may not be checked; Pay attention to 'safe values' at each attribute description.
     void              setIndexedSimAttribute(ActorSimAttr attr, float val, int index); //!< - Sets a sim attribute for a particular object (e.g. aircraft engine) at the specified index.
     float             getSimAttribute(ActorSimAttr attr);
