@@ -4844,11 +4844,23 @@ std::vector<std::string> Actor::getManagedMaterialNames()
     return names;
 }
 
-Vector3 Actor::getNodePosition(int nodeNumber, bool relative)
+Vector3 Actor::getNodePosition(int nodeNumber)
 {
     if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
     {
-        return relative ? ar_nodes[nodeNumber].RelPosition : ar_nodes[nodeNumber].AbsPosition;
+        return ar_nodes[nodeNumber].AbsPosition;
+    }
+    else
+    {
+        return Ogre::Vector3::ZERO;
+    }
+}
+
+Vector3 Actor::getNodeRelPosition(int nodeNumber)
+{
+    if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
+    {
+        return ar_nodes[nodeNumber].RelPosition;
     }
     else
     {
