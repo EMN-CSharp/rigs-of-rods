@@ -338,20 +338,6 @@ int main(int argc, char *argv[])
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {
                 App::GetGameContext()->GetActorManager()->SyncWithSimThread();
-                for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
-                {
-                    // Now that the physics thread is stopped, we can now handle
-                    // transform requests.
-                    // We must do this here for two reasons:
-                    // - Scripts can also request translations and rotations,
-                    //   and the camera must be aware of those changes to prevent
-                    //   it from falling 1 frame behind and causing stuttering.
-                    //   The camera will be updated in the input processing step.
-                    // - If the actor is being moved in repair mode, any transform
-                    //   that puts some part of the actor under the ground will be
-                    //   corrected afterwards.
-                    actor->HandleTransformRequests();
-                }
             }
 
             // Game events
@@ -2078,16 +2064,29 @@ int main(int argc, char *argv[])
             }
 #endif // USE_SOCKETW
 
-            // Set arcade controls and hydro coupling settings for player actors
-            // Default to false for other actors.
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {
                 ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
                 for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
                 {
+                    // Set arcade controls and hydro coupling settings for player actors
+                    // Default to false for other actors.
                     bool is_player_actor = player_actor != nullptr && actor->getInstanceId() == player_actor->getInstanceId();
                     actor->ar_arcade_controls = is_player_actor && App::io_arcade_controls->getBool();
                     actor->ar_hydro_speed_coupling_enabled = is_player_actor && App::io_hydro_coupling->getBool();
+
+
+                    // Now that the physics thread is stopped, we can now handle
+                    // transform requests.
+                    // We must do this here for two reasons:
+                    // - Scripts can now also request translations and rotations,
+                    //   and the camera must be aware of those changes to prevent
+                    //   it from falling 1 frame behind and causing stuttering.
+                    //   The camera will be updated in the input processing step.
+                    // - If the actor is being moved in repair mode, any transform
+                    //   that puts some part of the actor under the ground will be
+                    //   corrected afterwards.
+                    actor->HandleTransformRequests();
                 }
             }
 

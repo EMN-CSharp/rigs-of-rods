@@ -79,6 +79,8 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_SOFT_RESET", (int)ActorModifyRequest::Type::SOFT_RESET); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_RESTORE_SAVED", (int)ActorModifyRequest::Type::RESTORE_SAVED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_WAKE_UP", (int)ActorModifyRequest::Type::WAKE_UP); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_TRANSLATE", (int)ActorModifyRequest::Type::TRANSLATE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_ROTATE", (int)ActorModifyRequest::Type::ROTATE); ROR_ASSERT(result >= 0);
 
     // enum ActorSimAttr
     result = engine->RegisterEnum("ActorSimAttr"); ROR_ASSERT(result >= 0);

@@ -1648,10 +1648,61 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "type", "ActorModifyRequestType", modify_type) &&
             GetValueFromScriptDict(log_msg, dict, /*required:*/true, "instance_id", "int64", instance_id))
         {
-            ActorModifyRequest* rq = new ActorModifyRequest();
-            rq->amr_type = modify_type;
-            rq->amr_actor = static_cast<ActorInstanceID_t>(instance_id);
-            m.payload = rq;
+            Ogre::Vector3 translation_request;
+            Ogre::Quaternion rotation_request;
+            Ogre::Vector3 rotation_request_centre;
+            bool rotation_request_relative_centre;
+
+            switch (modify_type)
+            {
+            case RoR::ActorModifyRequest::Type::TRANSLATE:
+            {
+                if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "translation_request", "vector3", translation_request))
+                {
+                    ActorModifyRequest* rq = new ActorModifyRequest();
+                    rq->amr_type = modify_type;
+                    rq->amr_actor = static_cast<ActorInstanceID_t>(instance_id);
+                    rq->amr_translation_request = translation_request;
+                    m.payload = rq;
+                }
+                else
+                {
+                    return false;
+                }
+
+                break;
+            }
+            case RoR::ActorModifyRequest::Type::ROTATE:
+            {
+                if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "rotation_request", "quaternion", rotation_request) &&
+                    GetValueFromScriptDict(log_msg, dict, /*required:*/true, "rotation_request_centre", "vector3", rotation_request_centre) &&
+                    GetValueFromScriptDict(log_msg, dict, /*required:*/true, "rotation_request_relative_centre", "bool", rotation_request_relative_centre))
+                {
+                    ActorModifyRequest* rq = new ActorModifyRequest();
+                    rq->amr_type = modify_type;
+                    rq->amr_actor = static_cast<ActorInstanceID_t>(instance_id);
+                    rq->amr_rotation_request = rotation_request;
+                    rq->amr_rotation_request_centre = rotation_request_centre;
+                    rq->amr_rotation_request_relative_centre = rotation_request_relative_centre;
+                    m.payload = rq;
+                }
+                else
+                {
+                    return false;
+                }
+
+                break;
+            }
+            default:
+            {
+                ActorModifyRequest* rq = new ActorModifyRequest();
+                rq->amr_type = modify_type;
+                rq->amr_actor = static_cast<ActorInstanceID_t>(instance_id);
+                m.payload = rq;
+                break;
+            }
+
+            }
         }
         else
         {

@@ -446,6 +446,14 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         actor->GetGfxActor()->UpdateSimDataBuffer();
         App::GetGfxScene()->ForceUpdateSingleGfxActor(actor->GetGfxActor());
     }
+    else if (rq.amr_type == ActorModifyRequest::Type::TRANSLATE)
+    {
+        actor->requestTranslation(rq.amr_translation_request);
+    }
+    else if (rq.amr_type == ActorModifyRequest::Type::ROTATE)
+    {
+        actor->requestRotation(rq.amr_rotation_request, rq.amr_rotation_request_centre, rq.amr_rotation_request_relative_centre);
+    }
 }
 
 void GameContext::DeleteActor(ActorPtr actor)

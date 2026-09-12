@@ -870,7 +870,9 @@ struct ActorModifyRequest
         SOFT_RESET,
         RESTORE_SAVED,
         WAKE_UP,
-        REFRESH_VISUALS //!< Forces a synchronous update of visuals from any context - i.e. from terrain editor mode or with sleeping/physicspaused actor.
+        REFRESH_VISUALS, //!< Forces a synchronous update of visuals from any context - i.e. from terrain editor mode or with sleeping/physicspaused actor.
+        TRANSLATE,
+        ROTATE
     };
 
     ActorInstanceID_t   amr_actor = ACTORINSTANCEID_INVALID;// not ActorPtr because it's not thread-safe
@@ -881,6 +883,11 @@ struct ActorModifyRequest
     std::string         amr_addonpart_fname; //!< Fallback method in case CacheEntry doesn't exist anymore - that means mod was uninstalled in the meantime. Used by REMOVE_ADDONPART_AND_RELOAD.
     Ogre::Vector3       amr_softrespawn_position; //!< Position to use with `SOFT_RESPAWN`.
     Ogre::Quaternion    amr_softrespawn_rotation; //!< Rotation to use with `SOFT_RESPAWN`; use `TObjParser::CalcRotation()` to calculate quaternion from XYZ like in TOBJ file.
+
+    Ogre::Vector3       amr_translation_request;
+    Ogre::Quaternion    amr_rotation_request;
+    Ogre::Vector3       amr_rotation_request_centre;
+    bool                amr_rotation_request_relative_centre;
 };
 
 enum class ActorLinkingRequestType
