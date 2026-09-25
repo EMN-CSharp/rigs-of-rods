@@ -20,12 +20,15 @@
 /// @file
 /// @author Petr Ohlidal
  
+#include "AngelScriptBindings.h"
 #include "ProceduralManager.h"
 #include "ProceduralRoad.h"
 #include "ScriptEngine.h"
+#include "wrappers/ProceduralRoadAngelscriptWrappers.h"
 
 using namespace RoR;
 using namespace AngelScript;
+using namespace ProceduralRoadAngelscriptWrappers;
 
 static ProceduralPoint* ProceduralPointFactory()
 {
@@ -101,7 +104,7 @@ void RoR::RegisterProceduralRoadNative(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("ProceduralRoadClass", "void addQuad(vector3 p1, vector3 p2, vector3 p3, vector3 p4, TextureFit texfit, vector3 pos, vector3 lastpos, float width, bool flip = false)", asMETHOD(RoR::ProceduralRoad, addQuad), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralRoadClass", "void addCollisionQuad(vector3 p1, vector3 p2, vector3 p3, vector3 p4, const string&in gm_name, bool flip = false)", asMETHODPR(RoR::ProceduralRoad, addCollisionQuad, (Ogre::Vector3, Ogre::Vector3, Ogre::Vector3, Ogre::Vector3, std::string const&, bool), void), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralRoadClass", "void createMesh()", asMETHOD(RoR::ProceduralRoad, createMesh), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralRoadClass", "void finish()", asMETHOD(RoR::ProceduralRoad, finish), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralRoadClass", "void finish()", asFUNCTION(ProceduralRoad_finish), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralRoadClass", "void setCollisionEnabled(bool v)", asMETHOD(RoR::ProceduralRoad, setCollisionEnabled), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // class ProceduralObject (ref)

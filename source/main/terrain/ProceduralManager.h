@@ -105,6 +105,9 @@ public:
     /// Deletes the road mesh
     void deleteObjectMesh(ProceduralObjectPtr po);
 
+    /// Scene node under which all road meshes are attached
+    Ogre::SceneNode* getGroupingSceneNode() { return pGroupingSceneNode; }
+
 private:
 
     std::vector<ProceduralObjectPtr> pObjects;
